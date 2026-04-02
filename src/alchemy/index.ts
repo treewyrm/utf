@@ -12,3 +12,11 @@ export {
 
 export type { NodeInstance, Effect, EffectLibrary } from './effect.js'
 export { readEffectLibrary, writeEffectLibrary, DefaultId, WorldId } from './effect.js'
+
+export type {
+  AnimatedFloat,
+  AnimatedColor,
+  AnimatedCurve,
+  Transform,
+} from './animation.js'
+export { EaseType, WrapFlags, floatAt, colorAt, curveAt, transformAt } from './animation.js'

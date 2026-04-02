@@ -1,5 +1,15 @@
 import BufferView from '../bufferview.js'
-import { clamp, lerp, quadIn, quadOut, smooth, remap, fract, pingPong, hermite } from '../math/scalar.js'
+import {
+  clamp,
+  lerp,
+  quadIn,
+  quadOut,
+  smooth,
+  remap,
+  fract,
+  pingPong,
+  hermite,
+} from '../math/scalar.js'
 import {
   type Read,
   type Write,
@@ -51,7 +61,7 @@ interface Animation<T extends Keyframe> {
 }
 
 /** Easing animation type. */
-export const enum EaseType {
+export enum EaseType {
   Step,
   Linear,
   QuadIn,
@@ -84,7 +94,7 @@ const writeEaseAnimation = <T extends Keyframe>(
   )
 
 /** Looped animation out-of-bounds toggles. */
-export const enum WrapFlags {
+export enum WrapFlags {
   None = 0,
   BeforeRepeat = 1 << 0,
   BeforeMirror = 1 << 1,
@@ -375,3 +385,25 @@ export const curveAt = (animation: AnimatedCurve, p: number, t: number): number 
   const { before, ahead, span } = at(animation.keyframes, p)
   return ease(animation.easing, hermiteAt(before, t), hermiteAt(ahead, t), span)
 }
+
+const transformPointAt = ({ x, y, z }: TransformPoint, p: number, t: number): Vector => ({
+  x: curveAt(x, p, t),
+  y: curveAt(y, p, t),
+  z: curveAt(z, p, t),
+})
+
+export const transformAt = (
+  { flags, position, rotation, scale }: Transform,
+  p: number,
+  t: number,
+): {
+  flags: TransformFlags
+  position: Vector
+  rotation: Vector
+  scale: Vector
+} => ({
+  flags,
+  position: position ? transformPointAt(position, p, t) : { x: 0, y: 0, z: 0 },
+  rotation: rotation ? transformPointAt(rotation, p, t) : { x: 0, y: 0, z: 0 },
+  scale: scale ? transformPointAt(scale, p, t) : { x: 1, y: 1, z: 1 },
+})
