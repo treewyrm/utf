@@ -2,7 +2,7 @@
   "name": "@treewyrm/utf",
   "version": "0.1.0",
   "description": "UTF (bespoke format used in Freelancer PC game from 2003) processing library.",
-  "keywords": [],
+  "keywords": ["freelancer", "utf", "game", "digital anvil", "chris roberts"],
   "author": "Yuriy Alexeev",
   "license": "MIT",
   "type": "module",
@@ -14,6 +14,14 @@
     "./utils": {
       "import": "./dist/index.utils.js",
       "types": "./dist/index.utils.d.ts"
+    },
+    "./math": {
+      "import": "./dist/math/index.js",
+      "types": "./dist/math/index.d.ts"
+    },
+    "./alchemy": {
+      "import": "./dist/alchemy/index.js",
+      "types": "./dist/alchemy/indes.d.ts"
     }
   },
   "main": "./dist/index.js",
