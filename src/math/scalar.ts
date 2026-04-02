@@ -1,3 +1,8 @@
+export const random = (min = -1, max = 1): number => Math.random() * (max - min) + min
+
+export const equal = (a: number, b: number, epsilon = 0.0001): boolean =>
+  Math.abs(a - b) <= epsilon * Math.max(1, Math.abs(a), Math.abs(b))
+
 export const clamp = (a: number, min = -Infinity, max = Infinity): number =>
   a < min ? min : a > max ? max : a
 

@@ -3,12 +3,6 @@ import BufferView from '../bufferview.js'
 const encoder = new TextEncoder()
 const decoder = new TextDecoder()
 
-export interface Vector {
-  x: number
-  y: number
-  z: number
-}
-
 export type Read<T> = (view: BufferView) => T
 export type Write<T> = (value: T) => BufferView
 

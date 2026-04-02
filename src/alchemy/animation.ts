@@ -1,4 +1,6 @@
 import BufferView from '../bufferview.js'
+import type Vector3 from '../math/vector3.js'
+
 import {
   clamp,
   lerp,
@@ -10,10 +12,10 @@ import {
   pingPong,
   hermite,
 } from '../math/scalar.js'
+
 import {
   type Read,
   type Write,
-  type Vector,
   readArray,
   writeArray,
   readFloat,
@@ -40,7 +42,7 @@ const writeFloatKeyframe: Write<FloatKeyframe> = ({ key, value }) =>
     .writeFloat32(key)
     .writeFloat32(value)
 
-type VectorKeyframe = Vector & Keyframe
+type VectorKeyframe = Vector3 & Keyframe
 
 const readVectorKeyframe: Read<VectorKeyframe> = (view) => ({
   key: view.readFloat32(),
@@ -346,18 +348,18 @@ export const floatAt = (animation: AnimatedFloat, p: number, t: number): number 
   return ease(animation.easing, floatWhen(before, t), floatWhen(ahead, t), span)
 }
 
-const easeVector = (type: EaseType, a: Vector, b: Vector, t: number): Vector => ({
+const easeVector = (type: EaseType, a: Vector3, b: Vector3, t: number): Vector3 => ({
   x: ease(type, a.x, b.x, t),
   y: ease(type, a.y, b.y, t),
   z: ease(type, a.z, b.z, t),
 })
 
-const vectorWhen = (animation: EaseAnimation<VectorKeyframe>, key: number): Vector => {
+const vectorWhen = (animation: EaseAnimation<VectorKeyframe>, key: number): Vector3 => {
   const { before, ahead, span } = at(animation.keyframes, key)
   return easeVector(animation.easing, before, ahead, span)
 }
 
-export const colorAt = (animation: AnimatedColor, p: number, t: number): Vector => {
+export const colorAt = (animation: AnimatedColor, p: number, t: number): Vector3 => {
   const { before, ahead, span } = at(animation.keyframes, p)
   return easeVector(animation.easing, vectorWhen(before, t), vectorWhen(ahead, t), span)
 }
@@ -386,7 +388,7 @@ export const curveAt = (animation: AnimatedCurve, p: number, t: number): number 
   return ease(animation.easing, hermiteAt(before, t), hermiteAt(ahead, t), span)
 }
 
-const transformPointAt = ({ x, y, z }: TransformPoint, p: number, t: number): Vector => ({
+const transformPointAt = ({ x, y, z }: TransformPoint, p: number, t: number): Vector3 => ({
   x: curveAt(x, p, t),
   y: curveAt(y, p, t),
   z: curveAt(z, p, t),
@@ -398,9 +400,9 @@ export const transformAt = (
   t: number,
 ): {
   flags: TransformFlags
-  position: Vector
-  rotation: Vector
-  scale: Vector
+  position: Vector3
+  rotation: Vector3
+  scale: Vector3
 } => ({
   flags,
   position: position ? transformPointAt(position, p, t) : { x: 0, y: 0, z: 0 },
