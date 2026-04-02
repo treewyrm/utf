@@ -1,0 +1,43 @@
+{
+  "name": "@treewyrm/utf",
+  "version": "0.1.0",
+  "description": "UTF (bespoke format used in Freelancer PC game from 2003) processing library.",
+  "keywords": [],
+  "author": "Yuriy Alexeev",
+  "license": "MIT",
+  "type": "module",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    },
+    "./utils": {
+      "import": "./dist/index.utils.js",
+      "types": "./dist/index.utils.d.ts"
+    }
+  },
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "files": [
+    "dist",
+    "LICENSE",
+    "README.md"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "test": "node --import=tsx --test src/index.test.ts",
+    "prepublishOnly": "npm run build"
+  },
+  "devDependencies": {
+    "@types/node": "^22.19.15",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  },
+  "engines": {
+    "node": ">=18.19.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/treewyrm/utf.git"
+  }
+}
