@@ -42,16 +42,20 @@ const writeFloatKeyframe: Write<FloatKeyframe> = ({ key, value }) =>
     .writeFloat32(key)
     .writeFloat32(value)
 
-type VectorKeyframe = Vector3 & Keyframe
+interface VectorKeyframe extends Keyframe {
+  value: Vector3
+}
 
 const readVectorKeyframe: Read<VectorKeyframe> = (view) => ({
   key: view.readFloat32(),
-  x: view.readFloat32(),
-  y: view.readFloat32(),
-  z: view.readFloat32(),
+  value: {
+    x: view.readFloat32(),
+    y: view.readFloat32(),
+    z: view.readFloat32(),
+  },
 })
 
-const writeVectorKeyframe: Write<VectorKeyframe> = ({ key, x, y, z }) =>
+const writeVectorKeyframe: Write<VectorKeyframe> = ({ key, value: { x, y, z } }) =>
   BufferView.allocate(Float32Array.BYTES_PER_ELEMENT * 4)
     .writeFloat32(key)
     .writeFloat32(x)
@@ -356,7 +360,7 @@ const easeVector = (type: EaseType, a: Vector3, b: Vector3, t: number): Vector3 
 
 const vectorWhen = (animation: EaseAnimation<VectorKeyframe>, key: number): Vector3 => {
   const { before, ahead, span } = at(animation.keyframes, key)
-  return easeVector(animation.easing, before, ahead, span)
+  return easeVector(animation.easing, before.value, ahead.value, span)
 }
 
 export const colorAt = (animation: AnimatedColor, p: number, t: number): Vector3 => {
@@ -380,7 +384,10 @@ const hermiteAt = (animation: LoopAnimation<VectorKeyframe>, key: number): numbe
   const { before, ahead, span } = at(animation.keyframes, key)
 
   // Add loop distance for accumulative result.
-  return hermite(before.x, before.z, ahead.x, ahead.y, span) + (last.x - first.x) * count
+  return (
+    hermite(before.value.x, before.value.z, ahead.value.x, ahead.value.y, span) +
+    (last.value.x - first.value.x) * count
+  )
 }
 
 export const curveAt = (animation: AnimatedCurve, p: number, t: number): number => {

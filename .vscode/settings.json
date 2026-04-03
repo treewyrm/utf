@@ -1,0 +1,11 @@
+{
+  "editor.tabSize": 2,
+  "js/ts.format.semicolons": "remove",
+  "js/ts.preferences.quoteStyle": "single",
+  "files.watcherExclude": {
+    "/node_modules/**": true,
+    "/.git/**": true,
+    "/dist/**": true,
+    "/.vscode/**": true
+  }
+}
