@@ -1,14 +1,15 @@
-import BufferView from '../bufferview.js'
-import type { Vector3, Matrix3 } from '../math/index.js'
+import BufferView from '#/utility/bufferview.js'
+import Vector3 from '#/math/vector3.js'
+import Matrix3 from '#/math/matrix3.js'
 
-/** Fixed joint. */
+/** Fixed joint. Cannot be animated. */
 interface Fixed {
   type: 'fixed'
   position: Vector3
   rotation: Matrix3
 }
 
-/** Revolute joint. Fixed axis rotation constraint. */
+/** Revolute joint. Fixed axis rotation constraint. Animation controls angle between min/max. */
 interface Revolute {
   type: 'revolute'
   position: Vector3
@@ -19,7 +20,7 @@ interface Revolute {
   max: number
 }
 
-/** Prismatic joint. Fixed axis movement constraint. */
+/** Prismatic joint. Fixed axis movement constraint. Animation controls offset between min/max. */
 interface Prismatic {
   type: 'prismatic'
   position: Vector3
@@ -30,7 +31,7 @@ interface Prismatic {
   max: number
 }
 
-/** Cylinder joint. Fixed axis rotation and movement constraint. */
+/** Cylinder joint. Fixed axis rotation and movement constraint. Unknown animation keyframe structure. */
 interface Cylinder {
   type: 'cylinder'
   position: Vector3
@@ -42,7 +43,7 @@ interface Cylinder {
   maxRev: number
 }
 
-/** Sphere/ball joint. Rotation constraint. */
+/** Sphere/ball joint. Rotation constraint. Animation controls rotation by quat. */
 interface Sphere {
   type: 'sphere'
   position: Vector3
@@ -56,52 +57,31 @@ interface Sphere {
   maxZ: number
 }
 
-/** Loose joint. Unconstrainted. */
+/** Loose joint. Unconstrainted. Animation controls free motion by vector3 + quat/matrix3. */
 interface Loose {
   type: 'loose'
   position: Vector3
   rotation: Matrix3
 }
 
-export const readVector3 = (view: BufferView): Vector3 => ({
-  x: view.readFloat32(),
-  y: view.readFloat32(),
-  z: view.readFloat32(),
-})
-
-export const writeVector3 = ({ x, y, z }: Vector3): BufferView =>
-  BufferView.allocate(Float32Array.BYTES_PER_ELEMENT * 3)
-    .writeFloat32(x)
-    .writeFloat32(y)
-    .writeFloat32(z)
-
-export const readMatrix3 = (view: BufferView): Matrix3 => ({
-  x: readVector3(view),
-  y: readVector3(view),
-  z: readVector3(view),
-})
-
-export const writeMatrix3 = ({ x, y, z }: Matrix3): BufferView =>
-  BufferView.join(writeVector3(x), writeVector3(y), writeVector3(z))
-
 /** Compound object child to parent connection joint. */
 export type Joint = Fixed | Revolute | Prismatic | Cylinder | Sphere | Loose
 
 export const readFixed = (view: BufferView): Fixed => ({
   type: 'fixed',
-  position: readVector3(view),
-  rotation: readMatrix3(view),
+  position: Vector3.read(view),
+  rotation: Matrix3.read(view),
 })
 
 export const writeFixed = ({ position, rotation }: Fixed): BufferView =>
-  BufferView.join(writeVector3(position), writeMatrix3(rotation))
+  BufferView.join(Vector3.write(position), Matrix3.write(rotation))
 
 export const readRevolute = (view: BufferView): Revolute => ({
   type: 'revolute',
-  position: readVector3(view),
-  offset: readVector3(view),
-  rotation: readMatrix3(view),
-  axis: readVector3(view),
+  position: Vector3.read(view),
+  offset: Vector3.read(view),
+  rotation: Matrix3.read(view),
+  axis: Vector3.read(view),
   min: view.readFloat32(),
   max: view.readFloat32(),
 })
@@ -115,10 +95,10 @@ export const writeRevolute = ({
   max,
 }: Revolute): BufferView =>
   BufferView.join(
-    writeVector3(position),
-    writeVector3(offset),
-    writeMatrix3(rotation),
-    writeVector3(axis),
+    Vector3.write(position),
+    Vector3.write(offset),
+    Matrix3.write(rotation),
+    Vector3.write(axis),
     BufferView.allocate(Float32Array.BYTES_PER_ELEMENT * 2)
       .writeFloat32(min)
       .writeFloat32(max),
@@ -126,10 +106,10 @@ export const writeRevolute = ({
 
 export const readPrismatic = (view: BufferView): Prismatic => ({
   type: 'prismatic',
-  position: readVector3(view),
-  offset: readVector3(view),
-  rotation: readMatrix3(view),
-  axis: readVector3(view),
+  position: Vector3.read(view),
+  offset: Vector3.read(view),
+  rotation: Matrix3.read(view),
+  axis: Vector3.read(view),
   min: view.readFloat32(),
   max: view.readFloat32(),
 })
@@ -143,10 +123,10 @@ export const writePrismatic = ({
   max,
 }: Prismatic): BufferView =>
   BufferView.join(
-    writeVector3(position),
-    writeVector3(offset),
-    writeMatrix3(rotation),
-    writeVector3(axis),
+    Vector3.write(position),
+    Vector3.write(offset),
+    Matrix3.write(rotation),
+    Vector3.write(axis),
     BufferView.allocate(Float32Array.BYTES_PER_ELEMENT * 2)
       .writeFloat32(min)
       .writeFloat32(max),
@@ -154,9 +134,9 @@ export const writePrismatic = ({
 
 export const readSphere = (view: BufferView): Sphere => ({
   type: 'sphere',
-  position: readVector3(view),
-  offset: readVector3(view),
-  rotation: readMatrix3(view),
+  position: Vector3.read(view),
+  offset: Vector3.read(view),
+  rotation: Matrix3.read(view),
   minX: view.readFloat32(),
   maxX: view.readFloat32(),
   minY: view.readFloat32(),
@@ -177,9 +157,9 @@ export const writeSphere = ({
   maxZ,
 }: Sphere): BufferView =>
   BufferView.join(
-    writeVector3(position),
-    writeVector3(offset),
-    writeMatrix3(rotation),
+    Vector3.write(position),
+    Vector3.write(offset),
+    Matrix3.write(rotation),
     BufferView.allocate(Float32Array.BYTES_PER_ELEMENT * 6)
       .writeFloat32(minX)
       .writeFloat32(maxX)
@@ -191,9 +171,9 @@ export const writeSphere = ({
 
 export const readLoose = (view: BufferView): Loose => ({
   type: 'loose',
-  position: readVector3(view),
-  rotation: readMatrix3(view),
+  position: Vector3.read(view),
+  rotation: Matrix3.read(view),
 })
 
 export const writeLoose = ({ position, rotation }: Loose): BufferView =>
-  BufferView.join(writeVector3(position), writeMatrix3(rotation))
+  BufferView.join(Vector3.write(position), Matrix3.write(rotation))

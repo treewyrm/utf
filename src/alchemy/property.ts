@@ -1,4 +1,4 @@
-import { getResourceId } from '../hash.js'
+import { getResourceId } from '#/hash.js'
 import {
   type Read,
   type Write,
@@ -26,8 +26,8 @@ import {
   readTransform,
   writeTransform,
 } from './animation.js'
-import BufferView from '../bufferview.js'
-import { isHex, parseHex, toHex } from '../utils.js'
+import BufferView from '#/utility/bufferview.js'
+import { isHex, parseHex, toHex } from '#/utility/string.js'
 
 /** Alchemy node property type. */
 export enum PropertyType {

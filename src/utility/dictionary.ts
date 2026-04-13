@@ -1,5 +1,5 @@
 import ChunkView from './chunkview.js'
-import { getResourceId } from './hash.js'
+import { getResourceId } from '../hash.js'
 
 /** Simple string dictionary. */
 export default class Dictionary implements ArrayBufferView {

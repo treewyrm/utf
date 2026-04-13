@@ -1,4 +1,4 @@
-import BufferView from '../bufferview.js'
+import BufferView from '#/utility/bufferview.js'
 
 const encoder = new TextEncoder()
 const decoder = new TextDecoder()

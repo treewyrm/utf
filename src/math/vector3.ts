@@ -1,3 +1,4 @@
+import BufferView from '#/utility/bufferview.js'
 import { equal, lerp, random } from './scalar.js'
 
 /** 3D vector. */
@@ -150,6 +151,18 @@ const Vector3 = {
     y: Math.cos(theta),
     z: Math.sin(phi) * Math.sin(theta),
   }),
+
+  read: (view: BufferView): Vector3 => ({
+    x: view.readFloat32(),
+    y: view.readFloat32(),
+    z: view.readFloat32(),
+  }),
+
+  write: ({ x, y, z }: Vector3) =>
+    BufferView.allocate(Float32Array.BYTES_PER_ELEMENT * 3)
+      .writeFloat32(x)
+      .writeFloat32(y)
+      .writeFloat32(z),
 }
 
 export default Vector3

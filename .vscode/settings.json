@@ -7,5 +7,6 @@
     "/.git/**": true,
     "/dist/**": true,
     "/.vscode/**": true
-  }
+  },
+  "js/ts.tsdk.path": "node_modules/typescript/lib"
 }

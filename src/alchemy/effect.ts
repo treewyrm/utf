@@ -1,5 +1,5 @@
-import BufferView from '../bufferview.js'
-import { assemble, flatten } from '../hierarchy.js'
+import BufferView from '#/utility/bufferview.js'
+import { assemble, flatten } from '#/utility/hierarchy.js'
 import { type Read, type Write, readArray, readString, writeArray, writeString } from './misc.js'
 
 /** Effect node instance raw entry. */

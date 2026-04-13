@@ -1,34 +1,29 @@
-import BufferView from '../bufferview.js'
-import { Vector3, Matrix3 } from '../math/index.js'
-import Directory from '../directory.js'
-import File from '../file.js'
-import { readVector3, readMatrix3, writeVector3, writeMatrix3 } from './joint.js'
+import BufferView from '#/utility/bufferview.js'
+import Directory from '#/directory.js'
+import File from '#/file.js'
+import { type Hashable, getResource } from '#/hash.js'
+import Vector3 from '#/math/vector3.js'
+import Matrix3 from '#/math/matrix3.js'
 
-/** Fixed attachment hardpoint. */
-interface Fixed {
-  type: 'fixed'
+interface Base<T extends string> {
+  type: T
   name: string
   position: Vector3
   orientation: Matrix3
 }
 
+/** Fixed attachment hardpoint. */
+interface Fixed extends Base<'fixed'> {}
+
 /** Revolute attachment hardpoint. */
-interface Revolute {
-  type: 'revolute'
-  name: string
-  position: Vector3
-  orientation: Matrix3
+interface Revolute extends Base<'revolute'> {
   axis: Vector3
   min: number
   max: number
 }
 
 /** Prismatic attachment hardpoint. */
-interface Prismatic {
-  type: 'prismatic'
-  name: string
-  position: Vector3
-  orientation: Matrix3
+interface Prismatic extends Base<'prismatic'> {
   axis: Vector3
   min: number
   max: number
@@ -39,26 +34,26 @@ export type Hardpoint = Fixed | Revolute | Prismatic
 
 export const readPosition = (parent: Directory): Vector3 => {
   const file = parent.getFile('position')
-  return (file && readVector3(BufferView.from(file))) ?? Vector3.copy({})
+  return (file && Vector3.read(BufferView.from(file))) ?? Vector3.copy({})
 }
 
 export const writePosition = (position: Vector3): File =>
-  new File('Position', writeVector3(position))
+  new File('Position', Vector3.write(position))
 
 export const readOrientation = (parent: Directory): Matrix3 => {
   const file = parent.getFile('orientation')
-  return (file && readMatrix3(BufferView.from(file))) ?? Matrix3.copy({})
+  return (file && Matrix3.read(BufferView.from(file))) ?? Matrix3.copy({})
 }
 
 export const writeOrientation = (orientation: Matrix3): File =>
-  new File('Orientation', writeMatrix3(orientation))
+  new File('Orientation', Matrix3.write(orientation))
 
 export const readAxis = (parent: Directory): Vector3 => {
   const file = parent.getFile('axis')
-  return (file && readVector3(BufferView.from(file))) ?? Vector3.copy(Vector3.y)
+  return (file && Vector3.read(BufferView.from(file))) ?? Vector3.copy(Vector3.y)
 }
 
-export const writeAxis = (axis: Vector3): File => new File('Axis', writeVector3(axis))
+export const writeAxis = (axis: Vector3): File => new File('Axis', Vector3.write(axis))
 
 export const readFixed = (parent: Directory): Fixed => ({
   type: 'fixed',
@@ -144,3 +139,6 @@ export const writeHardpoints = (hardpoints: Iterable<Hardpoint>): Directory => {
 
   return directory
 }
+
+export const getHardpoint = (hardpoints: Hardpoint[], name: Hashable): Hardpoint | undefined =>
+  getResource(hardpoints, ({ name }) => name, name)

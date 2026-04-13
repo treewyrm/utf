@@ -1,5 +1,5 @@
-import BufferView from '../bufferview.js'
-import { getResourceId } from '../hash.js'
+import BufferView from '#/utility/bufferview.js'
+import { getResourceId } from '#/hash.js'
 import { type Read, type Write, readArray, readString, writeString } from './misc.js'
 import { type Property, PropertyType, readProperty, writeProperty } from './property.js'
 

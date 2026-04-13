@@ -1,5 +1,5 @@
-import BufferView from '../bufferview.js'
-import type Vector3 from '../math/vector3.js'
+import BufferView from '#/utility/bufferview.js'
+import type Vector3 from '#/math/vector3.js'
 
 import {
   clamp,
@@ -11,7 +11,7 @@ import {
   fract,
   pingPong,
   hermite,
-} from '../math/scalar.js'
+} from '#/math/scalar.js'
 
 import {
   type Read,

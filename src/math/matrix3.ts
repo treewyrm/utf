@@ -1,3 +1,4 @@
+import BufferView from '#/utility/bufferview.js'
 import Vector3 from './vector3.js'
 
 /** 3x3 transformation matrix. */
@@ -211,6 +212,15 @@ const Matrix3 = {
     array.push((value = last ? Matrix3.multiply(value, last) : Matrix3.copy(value)))
     return value
   },
+
+  read: (view: BufferView): Matrix3 => ({
+    x: Vector3.read(view),
+    y: Vector3.read(view),
+    z: Vector3.read(view),
+  }),
+
+  write: ({ x, y, z }: Matrix3) =>
+    BufferView.join(Vector3.write(x), Vector3.write(y), Vector3.write(z)),
 }
 
 export default Matrix3

@@ -1,5 +1,5 @@
-import File from '../file.js'
-import BufferView from '../bufferview.js'
+import File from '#/file.js'
+import BufferView from '#/utility/bufferview.js'
 import {
   readFixed,
   readLoose,

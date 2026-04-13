@@ -1,37 +1,27 @@
-import { getResource, getResourceId, type Hashable } from '../hash.js'
-import Directory from '../directory.js'
+import Compound from '#/utility/compound.js'
+import Directory from '#/directory.js'
+import { getResource, getResourceId, type Hashable } from '#/hash.js'
 import { readConstraints, writeConstraints, type Constraint } from './constraint.js'
-import { type Hardpoint } from './hardpoint.js'
-import { type Joint } from './joint.js'
+import { getHardpoint, type Hardpoint } from './hardpoint.js'
+import type { Joint } from './joint.js'
 
-/** Compound model object for hierarchical multipart models. */
-export interface Compound<T> {
-  /** Object name. */
+export interface Model<T> extends Compound<Model<T>> {
+  type: 'compound'
+
+  /** Part name. */
   name: string
 
-  /** Object index. */
+  /** Part index. */
   index: number
 
-  /** Object fragment filename. */
+  /** Part fragment filename. */
   filename: string
 
-  /** Object. */
+  /** Part. */
   part: T
 
   /** Joint connecting to parent object. */
   joint?: Joint
-
-  /** Object children. */
-  children: Compound<T>[]
-}
-
-/**
- * Lists all objects in compound hierachy.9
- * @param value
- */
-export function* getChildren<T>(value: Compound<T>): Generator<Compound<T>> {
-  yield value
-  for (const child of value.children) yield* getChildren(child)
 }
 
 /**
@@ -39,7 +29,10 @@ export function* getChildren<T>(value: Compound<T>): Generator<Compound<T>> {
  * @param objects
  * @param constraints
  */
-export const arrange = (objects: Compound<unknown>[], constraints: Constraint[]): void => {
+export function arrangeByConstraints(
+  objects: Model<unknown>[],
+  constraints: Constraint[],
+): void {
   /** Exclude root from array of children. */
   const [, ...children] = objects
 
@@ -60,11 +53,11 @@ export const arrange = (objects: Compound<unknown>[], constraints: Constraint[])
  * @param read Object fragment directory reader
  * @returns Root object
  */
-export const readCompound = <T>(parent: Directory, read: (parent: Directory) => T): Compound<T> => {
+export function readModel<T>(parent: Directory, read: (parent: Directory) => T): Model<T> {
   const compound = parent.getDirectory('Cmpnd')
   if (!compound) throw new Error('Missing compound directory')
 
-  let objects: Compound<T>[] = []
+  let objects: Model<T>[] = []
   let constraints: Constraint[] = []
 
   for (const directory of compound.directories) {
@@ -85,7 +78,8 @@ export const readCompound = <T>(parent: Directory, read: (parent: Directory) => 
         const fragment = parent.getDirectory(filename)
         if (!fragment) throw new Error('Missing object fragment directory')
 
-        const compound: Compound<T> = {
+        const compound: Model<T> = {
+          type: 'compound',
           name,
           index,
           filename,
@@ -105,7 +99,7 @@ export const readCompound = <T>(parent: Directory, read: (parent: Directory) => 
   const root = objects.at(0)
   if (!root) throw new Error('Missing root object')
 
-  if (constraints) arrange(objects, constraints)
+  if (constraints) arrangeByConstraints(objects, constraints)
 
   return root
 }
@@ -116,20 +110,19 @@ export const readCompound = <T>(parent: Directory, read: (parent: Directory) => 
  * @param write Object fragment directory writer
  * @param parent Output directory
  */
-export const writeCompound = <T>(root: Compound<T>, write: (value: T) => Directory): Directory => {
-  const parent = new Directory()
+export function writeModel<T>(root: Model<T>, write: (value: T) => Directory): Directory {
+  const directory = new Directory()
 
   /** Compound directory. */
-  const compound = parent.setDirectory('Cmpnd')
+  const compound = directory.setDirectory('Cmpnd')
 
   /** Model constraint list. */
   const constraints: Constraint[] = []
 
   /** Unique object names. */
   const names = new Set<string>()
-  const indices: number[] = []
 
-  for (const object of getChildren(root)) {
+  for (const object of Compound.list(root)) {
     const { name, filename, index, part } = object
 
     if (!name.length) throw new RangeError(`Compound part has empty object name`)
@@ -137,7 +130,6 @@ export const writeCompound = <T>(root: Compound<T>, write: (value: T) => Directo
     if (!Number.isInteger(index)) throw new RangeError(`Non-integer compound part index in ${name}`)
 
     names.add(name)
-    indices.push(index)
 
     const directory = compound.setDirectory(object === root ? 'Root' : `Part_${name}`)
 
@@ -148,42 +140,26 @@ export const writeCompound = <T>(root: Compound<T>, write: (value: T) => Directo
     for (const { joint, name } of object.children)
       if (joint) constraints.push({ parent: object.name, child: name, joint })
 
-    const fragment = parent.setDirectory(filename)
+    const fragment = directory.setDirectory(filename)
     fragment.children = write(part).children
   }
 
   // Write constraints.
   for (const file of writeConstraints(constraints))
-    compound.setFile('cons', file.name).append(file.data)
+    compound.setFile('Cons', file.name).append(file.data)
 
-  return parent
+  return directory
 }
 
-/**
- * Finds compound object by name.
- * @param root Root compound object
- * @param name Object name
- * @returns Compound object
- */
-export const getPart = <T>(root: Compound<T>, name: Hashable): Compound<T> | undefined => {
-  const crc = getResourceId(name)
-
-  for (const part of getChildren(root)) if (getResourceId(part.name) === crc) return part
-}
-
-/**
- * Finds hardpoint compound model.
- * @param root Root compound object
- * @param name Hardpoint name
- * @returns Hardpoint and parent part
- */
-export const getHardpoint = <T extends { hardpoints: Hardpoint[] }>(
-  root: Compound<T>,
+/** Finds hardpoint. */
+export function getModelHardpoint<T>(
+  root: Model<T>,
+  predicate: (part: T) => Hardpoint[],
   name: Hashable,
-) => {
+) {
   let hardpoint: Hardpoint | undefined
+  name = getResourceId(name)
 
-  for (const parent of getChildren(root))
-    if ((hardpoint = getResource(parent.part.hardpoints, ({ name }) => name, name)))
-      return { hardpoint, parent }
+  for (const parent of Compound.list(root))
+    if ((hardpoint = getHardpoint(predicate(parent.part), name))) return { hardpoint, parent }
 }

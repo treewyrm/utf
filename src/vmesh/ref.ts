@@ -1,4 +1,4 @@
-import BufferView from '../bufferview.js'
+import BufferView from '../utility/bufferview.js'
 import Directory from '../directory.js'
 import File from '../file.js'
 import type Vector3 from '../math/vector3.js'

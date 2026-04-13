@@ -1,4 +1,4 @@
-import BufferView from '../bufferview.js'
+import BufferView from '../utility/bufferview.js'
 
 export interface VMeshGroup {
   materialId: number

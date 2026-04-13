@@ -1,4 +1,4 @@
-import { concatViews } from './utils.js'
+import { concatViews } from './timestamp.js'
 
 export default class ChunkView implements ArrayBufferView {
   #chunks: ArrayBufferView[] = []

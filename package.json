@@ -2,18 +2,29 @@
   "name": "@treewyrm/utf",
   "version": "0.1.0",
   "description": "UTF (bespoke format used in Freelancer PC game from 2003) processing library.",
-  "keywords": ["freelancer", "utf", "game", "digital anvil", "chris roberts"],
+  "keywords": [
+    "freelancer",
+    "utf",
+    "game",
+    "digital anvil",
+    "chris roberts"
+  ],
   "author": "Yuriy Alexeev",
   "license": "MIT",
   "type": "module",
+  "imports": {
+    "#/*": [
+      "./dist/*"
+    ]
+  },
   "exports": {
     ".": {
       "import": "./dist/index.js",
       "types": "./dist/index.d.ts"
     },
-    "./utils": {
-      "import": "./dist/index.utils.js",
-      "types": "./dist/index.utils.d.ts"
+    "./utility": {
+      "import": "./dist/utility/index.js",
+      "types": "./dist/utility/index.d.ts"
     },
     "./math": {
       "import": "./dist/math/index.js",
@@ -21,7 +32,11 @@
     },
     "./alchemy": {
       "import": "./dist/alchemy/index.js",
-      "types": "./dist/alchemy/indes.d.ts"
+      "types": "./dist/alchemy/index.d.ts"
+    },
+    "./model": {
+      "import": "./dist/model/index.js",
+      "types": "./dist/model/index.d.ts"
     }
   },
   "main": "./dist/index.js",
@@ -32,12 +47,13 @@
     "README.md"
   ],
   "scripts": {
-    "build": "tsc",
-    "test": "node --import=tsx --test src/index.test.ts",
+    "build": "tsdown",
+    "test": "node --import tsx --test \"src/**/*.test.ts\"",
     "prepublishOnly": "npm run build"
   },
   "devDependencies": {
-    "@types/node": "^22.19.15",
+    "@types/node": "^22.19.17",
+    "tsdown": "^0.21.7",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
   },
